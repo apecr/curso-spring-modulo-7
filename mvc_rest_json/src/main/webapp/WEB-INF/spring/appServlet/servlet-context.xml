@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- Escanea o busca en el package base de la aplicación clases beans anotados 
+		con @Components, @Controller, @Service -->
+	<context:component-scan base-package="com.bolsadeideas.ejemplos.cuenta.controllers" />
+
+	<!-- Habilita la anotacion de Spring MVC @Controller -->
+	<mvc:annotation-driven />
+
+	<!-- Views configuradas y mapeadas en un bean, ej: id="cuentas" (clases PDF, XLS, etc) -->
+	<bean id="contentNegotiatingResolver"
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order"
+			value="#{T(org.springframework.core.Ordered).HIGHEST_PRECEDENCE}" />
+	</bean>
+
+	<!-- BeanNameViewResolver -->
+	<bean id="beanNameViewResolver"
+		class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="#{contentNegotiatingResolver.order+1}" />
+	</bean>
+	
+	<!-- La vista "cuentas" manejada por la clase "MappingJackson2JsonView" -->
+	<bean id="cuentas"
+		class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+		
+	<!-- La vista "cuenta" manejada por la clase "MappingJackson2JsonView" -->
+    <bean id="cuenta"
+        class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+
+	<!-- Resuelve la ubicacion de las vistas .jsp de @Controllers en la ruta /WEB-INF/views -->
+	<bean id="internalResourceResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="#{beanNameViewResolver.order+1}" />
+	</bean>
+
+</beans>
